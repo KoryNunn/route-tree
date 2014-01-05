@@ -30,6 +30,13 @@ Router.prototype.find = function(path){
         }
     }
 };
+Router.prototype.upOneName = function(route){
+    if(!route){
+        return;
+    }
+
+    return this.find(this.upOne(this.get(route)));
+};
 Router.prototype.upOne = function(path){
     if(path === undefined){
         path = window.location.pathname;
@@ -87,6 +94,17 @@ Router.prototype.get = function(name){
     }
 
     return route;
+};
+Router.prototype.isIn = function(childName, parentName){
+    var currentRoute = childName,
+        lastRoute;
+
+    while(currentRoute !== lastRoute && currentRoute !== parentName){
+        lastRoute = currentRoute;
+        currentRoute = this.upOneName(currentRoute);
+    }
+
+    return currentRoute === parentName;
 };
 
 module.exports = Router;

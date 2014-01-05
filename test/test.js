@@ -1,6 +1,7 @@
 var grape = require('grape'),
     Router = require('../'),
     router = new Router({
+        '/majiggers':'majiggers',
         '/things/new':'newThing',
         '/things/{0}/stuff/{1}': 'aStuff',
         '/things/{0}': 'thing',
@@ -31,4 +32,12 @@ grape('get', function(t){
 
     t.equal(router.get('home'), '/');
     t.equal(router.get('thing', 1), '/things/1');
+});
+
+grape('isIn', function(t){
+    t.plan(3);
+
+    t.ok(router.isIn('things', 'home'));
+    t.ok(router.isIn('thing', 'things'));
+    t.notOk(router.isIn('majiggers', 'stuff'));
 });
