@@ -18,6 +18,10 @@ function Router(routes){
     this.routes = routes;
 }
 Router.prototype.find = function(path){
+    if(path === undefined){
+        path = window.location.pathname;
+    }
+
     var routeKeys = Object.keys(this.routes);
 
     for(var i = 0; i < routeKeys.length; i++) {
@@ -27,12 +31,12 @@ Router.prototype.find = function(path){
     }
 };
 Router.prototype.upOne = function(path){
-    if(!path){
-        return;
+    if(path === undefined){
+        path = window.location.pathname;
     }
 
-    if(path === true){
-        path = window.location.pathname;
+    if(!path){
+        return;
     }
 
     var route,
