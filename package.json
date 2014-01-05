@@ -1,10 +1,10 @@
 {
-  "name": "router",
-  "version": "0.0.0",
-  "description": "",
+  "name": "route-tree",
+  "version": "0.0.1",
+  "description": "A simple named route matcher",
   "main": "router.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./test/test.js"
   },
   "author": "",
   "license": "BSD",
