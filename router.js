@@ -1,6 +1,13 @@
 var arrayProto = [],
     formatRegex = /\{[0-9]*?\}/g;
 
+function keysToPath(keys){
+    if(keys.length === 1 && keys[0] === ''){
+        return '/';
+    }
+    return keys.join('/');
+}
+
 function formatString(string, values) {
     return string.replace(/{(\d+)}/g, function (match, number) {
         return (values[number] == undefined || values[number] == null) ? match : values[number];
@@ -28,14 +35,19 @@ Router.prototype.upOne = function(path){
         path = window.location.pathname;
     }
 
-    var route = this.find(
-            path.split('/')
-            .slice(0, -1)
-            .join('/')
-        ),
+    var route,
+        upOnePath,
+        pathKeys = path.split('/'),
         currentPathKeys = path.split('/'),
-        upOnePath = this.get(route),
         upOneKeys;
+
+    while(!upOnePath && pathKeys.length){
+        pathKeys.pop();
+        route = this.find(
+            keysToPath(pathKeys)
+        ),
+        upOnePath = this.get(route);
+    }
 
     if(!upOnePath){
         // Nothing above current path.
@@ -51,7 +63,7 @@ Router.prototype.upOne = function(path){
         }
     }
 
-    return upOneKeys.join('/');
+    return keysToPath(upOneKeys);
 };
 Router.prototype.get = function(name){
     var route;
