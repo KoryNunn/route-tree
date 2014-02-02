@@ -28,10 +28,11 @@ grape('up a level', function(t){
 });
 
 grape('get', function(t){
-    t.plan(2);
+    t.plan(3);
 
     t.equal(router.get('home'), '/');
     t.equal(router.get('thing', 1), '/things/1');
+    t.equal(router.get('thing'), '/things/{0}');
 });
 
 grape('isIn', function(t){
@@ -46,4 +47,11 @@ grape('values', function(t){
     t.plan(1);
 
     t.deepEqual(router.values('/things/1/stuff/2'), ['1','2']);
+});
+
+grape('drill', function(t){
+    t.plan(2);
+
+    t.deepEqual(router.drill('/things/1', 'aStuff', 2), '/things/1/stuff/2');
+    t.deepEqual(router.drill('/things/1', 'aStuff'), '/things/1/stuff/{1}');
 });

@@ -11,15 +11,16 @@ function keysToPath(keys){
 function formatString(string, values) {
     return string.replace(/{(\d+)}/g, function (match, number) {
         return (values[number] == undefined || values[number] == null) ? match : values[number];
-    }).replace(/{(\d+)}/g, "");
+    });
 };
 
 function Router(routes){
     this.routes = routes;
     this._names = {};
 }
+
 Router.prototype.find = function(path){
-    if(path === undefined){
+    if(path == null){
         path = window.location.pathname;
     }
 
@@ -31,6 +32,7 @@ Router.prototype.find = function(path){
         }
     }
 };
+
 Router.prototype.upOneName = function(route){
     if(!route){
         return;
@@ -38,6 +40,7 @@ Router.prototype.upOneName = function(route){
 
     return this.find(this.upOne(this.get(route)));
 };
+
 Router.prototype.upOne = function(path){
     if(path === undefined){
         path = window.location.pathname;
@@ -77,6 +80,7 @@ Router.prototype.upOne = function(path){
 
     return keysToPath(upOneKeys);
 };
+
 Router.prototype.get = function(name){
     var route = this._names[name];
 
@@ -99,6 +103,7 @@ Router.prototype.get = function(name){
 
     return route;
 };
+
 Router.prototype.isIn = function(childName, parentName){
     var currentRoute = childName,
         lastRoute;
@@ -110,6 +115,7 @@ Router.prototype.isIn = function(childName, parentName){
 
     return currentRoute === parentName;
 };
+
 Router.prototype.values = function(path){
     var routeTemplate = this.get(this.find(path)),
         results = path.match('^' + routeTemplate.replace(formatRegex, '(.*?)') + '$');
@@ -117,6 +123,21 @@ Router.prototype.values = function(path){
     if(results){
         return results.slice(1);
     }
+};
+
+Router.prototype.drill = function(path, route){
+    if(path == null){
+        path = window.location.pathname;
+    }
+    var newValues = arrayProto.slice.call(arguments, 2);
+
+    var getArguments = this.values(path) || [];
+
+    getArguments = getArguments.concat(newValues);
+
+    getArguments.unshift(route);
+
+    return this.get.apply(this, getArguments);
 };
 
 module.exports = Router;

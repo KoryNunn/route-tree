@@ -62,3 +62,11 @@ Parse values out of a path:
     router.values('/groups/1/users/2');
 
     // Will return ['1','2']
+
+### Drill
+
+Drill down into a deeper path, using the values from a given path
+
+    router.drill('/groups/1', 'user', 3);
+
+    // Will return '/groups/1/users/3'
