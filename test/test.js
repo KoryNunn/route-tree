@@ -41,3 +41,9 @@ grape('isIn', function(t){
     t.ok(router.isIn('thing', 'things'));
     t.notOk(router.isIn('majiggers', 'stuff'));
 });
+
+grape('values', function(t){
+    t.plan(1);
+
+    t.deepEqual(router.values('/things/1/stuff/2'), ['1','2']);
+});

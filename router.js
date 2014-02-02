@@ -16,6 +16,7 @@ function formatString(string, values) {
 
 function Router(routes){
     this.routes = routes;
+    this._names = {};
 }
 Router.prototype.find = function(path){
     if(path === undefined){
@@ -77,11 +78,14 @@ Router.prototype.upOne = function(path){
     return keysToPath(upOneKeys);
 };
 Router.prototype.get = function(name){
-    var route;
+    var route = this._names[name];
 
-    for(var key in this.routes){
-        if(this.routes[key] === name){
-            route = key;
+    if(route == null){
+        for(var key in this.routes){
+            if(this.routes[key] === name){
+                this._names[name] = key;
+                route = key;
+            }
         }
     }
 
@@ -105,6 +109,14 @@ Router.prototype.isIn = function(childName, parentName){
     }
 
     return currentRoute === parentName;
+};
+Router.prototype.values = function(path){
+    var routeTemplate = this.get(this.find(path)),
+        results = path.match('^' + routeTemplate.replace(formatRegex, '(.*?)') + '$');
+
+    if(results){
+        return results.slice(1);
+    }
 };
 
 module.exports = Router;
