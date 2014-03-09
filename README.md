@@ -25,7 +25,7 @@ Find the name of a route from a path.
 
     router.find('/groups/12/users/2');
 
-    // Will return 'groups'
+    // Will return 'users'
 
 ### Get
 
