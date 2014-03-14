@@ -1,6 +1,6 @@
 {
   "name": "route-tree",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "A simple named route matcher",
   "main": "router.js",
   "scripts": {
