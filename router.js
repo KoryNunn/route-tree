@@ -12,7 +12,7 @@ function resolve(rootPath, path){
 }
 
 function Router(routes){
-    this.basePath  = window.location.host;
+    this.basePath  = window.location.protocol + '//' + window.location.host;
     this.routes = routes;
 }
 
