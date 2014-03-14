@@ -11,7 +11,7 @@ Initialise it:
 
     module.exports = new Router({
         home:{
-            _url: ['/', '/home],
+            _url: ['/', '/home'],
             groups{
                 _url: '/groups',
                 group:{
@@ -19,7 +19,7 @@ Initialise it:
                     user: {
                         _url: '/groups/{0}/users/{1}'
                     }
-                }
+                },
                 newGroup:{
                     _url: '/groups/new'
                 }
