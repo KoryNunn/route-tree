@@ -1,107 +1,99 @@
 var arrayProto = [],
     formatRegex = /\{[0-9]*?\}/g;
 
-function keysToPath(keys){
-    if(keys.length === 1 && keys[0] === ''){
-        return '/';
-    }
-    return keys.join('/');
-}
-
 function formatString(string, values) {
     return string.replace(/{(\d+)}/g, function (match, number) {
         return (values[number] == undefined || values[number] == null) ? match : values[number];
     });
 };
 
-function Router(routes){
-    this.routes = routes;
-    this._names = {};
+function resolve(rootPath, path){
+    return rootPath + path;
 }
 
-Router.prototype.find = function(path){
-    if(path == null){
-        path = window.location.pathname;
-    }
+function Router(routes){
+    this.basePath  = window.location.host;
+    this.routes = routes;
+}
 
-    var routeKeys = Object.keys(this.routes);
+function scanRoutes(routes, fn){
+    var route,
+        routeKey,
+        result;
 
-    for(var i = 0; i < routeKeys.length; i++) {
-        if(path.match('^' + routeKeys[i].replace(formatRegex, '.*?') + '$')){
-            return this.routes[routeKeys[i]];
+    for(var key in routes){
+        if(key === '_url'){
+            continue;
+        }
+
+        // Scan children first
+        result = scanRoutes(routes[key], fn);
+        if(result != null){
+            return result;
+        }
+        // Scan current route
+        result = fn(routes[key], key);
+        if(result != null){
+            return result;
         }
     }
+}
+
+Router.prototype.find = function(url){
+    var router = this;
+
+    if(url == null){
+        url = window.location.href;
+    }
+
+    return scanRoutes(this.routes, function(route, routeName){
+        var urls = Array.isArray(route._url) ? route._url : [route._url];
+        for(var i = 0; i < urls.length; i++){
+            var routeKey = resolve(router.basePath, urls[i]);
+
+            if(url.match('^' + routeKey.replace(formatRegex, '.*?') + '$')){
+                return routeName;
+            }
+        }
+    });
 };
 
-Router.prototype.upOneName = function(route){
-    if(!route){
+Router.prototype.upOneName = function(name){
+    if(!name){
         return;
     }
 
-    return this.find(this.upOne(this.get(route)));
+    return scanRoutes(this.routes, function(route, routeName){
+        if(name in route){
+            return routeName;
+        }
+    });
 };
 
 Router.prototype.upOne = function(path){
     if(path === undefined){
-        path = window.location.pathname;
+        path = window.location.href;
     }
 
-    if(!path){
-        return;
-    }
-
-    var route,
-        upOnePath,
-        pathKeys = path.split('/'),
-        currentPathKeys = path.split('/'),
-        upOneKeys;
-
-    while(!upOnePath && pathKeys.length){
-        pathKeys.pop();
-        route = this.find(
-            keysToPath(pathKeys)
-        ),
-        upOnePath = this.get(route);
-    }
-
-    if(!upOnePath){
-        // Nothing above current path.
-        // Return current path.
-        return path;
-    }
-
-    upOneKeys = upOnePath.split('/');
-
-    for(var i = 0; i < upOneKeys.length; i++) {
-        if(upOneKeys[i].match(formatRegex)){
-            upOneKeys[i] = currentPathKeys[i];
-        }
-    }
-
-    return keysToPath(upOneKeys);
+    return this.drill(path, this.upOneName(this.find(path)));
 };
 
 Router.prototype.get = function(name){
-    var route = this._names[name];
-
-    if(route == null){
-        for(var key in this.routes){
-            if(this.routes[key] === name){
-                this._names[name] = key;
-                route = key;
-            }
+    var url = scanRoutes(this.routes, function(route, routeName){
+        if(name === routeName){
+            return Array.isArray(route._url) ? route._url[0] : route._url;
         }
-    }
+    });
 
-    if(route == null){
+    if(!url){
         return;
     }
 
     if(arguments.length > 1){
-        return formatString(route, arrayProto.slice.call(arguments, 1));
+        return resolve(this.basePath, formatString(url, arrayProto.slice.call(arguments, 1)));
     }
 
-    return route;
+    return resolve(this.basePath, url);
 };
 
 Router.prototype.isIn = function(childName, parentName){
@@ -118,7 +110,13 @@ Router.prototype.isIn = function(childName, parentName){
 
 Router.prototype.values = function(path){
     var routeTemplate = this.get(this.find(path)),
-        results = path.match('^' + routeTemplate.replace(formatRegex, '(.*?)') + '$');
+        results;
+
+    if(routeTemplate == null){
+        return;
+    }
+
+    results = path.match('^' + routeTemplate.replace(formatRegex, '(.*?)') + '$');
 
     if(results){
         return results.slice(1);
@@ -127,7 +125,7 @@ Router.prototype.values = function(path){
 
 Router.prototype.drill = function(path, route){
     if(path == null){
-        path = window.location.pathname;
+        path = window.location.href;
     }
     var newValues = arrayProto.slice.call(arguments, 2);
 

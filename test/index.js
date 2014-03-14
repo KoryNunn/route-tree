@@ -1,13 +1,35 @@
+GLOBAL.window = {
+    location:{
+        host: 'mysite.com'
+    }
+};
+
 var grape = require('grape'),
     Router = require('../'),
     router = new Router({
-        '/majiggers':'majiggers',
-        '/things/new':'newThing',
-        '/things/{0}/stuff/{1}': 'aStuff',
-        '/things/{0}': 'thing',
-        '/things': 'things',
-        '/': 'home'
+        home:{
+            _url: ['/', '/index.html'],
+            majiggers:{
+                _url: '/majiggers'
+            },
+            things:{
+                _url: '/things',
+                newThing:{
+                    _url: '/things/new'
+                },
+                thing:{
+                    _url: '/things/{0}',
+                    aStuff:{
+                        _url: '/things/{0}/stuff/{1}'
+                    }
+                }
+            }
+        }
     });
+
+
+
+router.basePath = '';
 
 grape('match a route', function(t){
     t.plan(6);
@@ -25,6 +47,12 @@ grape('up a level', function(t){
 
     t.equal(router.upOne('/things/5/stuff/majigger'), '/things/5');
     t.equal(router.upOne('/things/5'), '/things');
+});
+
+grape('up by name', function(t){
+    t.plan(1);
+
+    t.equal(router.upOneName('aStuff'), 'thing');
 });
 
 grape('get', function(t){

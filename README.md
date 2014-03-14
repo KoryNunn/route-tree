@@ -10,11 +10,21 @@ Initialise it:
     var Router = require('route-tree');
 
     module.exports = new Router({
-        '/': 'home',
-        '/groups': 'groups',
-        '/groups/{0}': 'group',
-        '/groups/{0}/users/{1}': 'user',
-        '/groups/new': 'newGroup'
+        home:{
+            _url: ['/', '/home],
+            groups{
+                _url: '/groups',
+                group:{
+                    _url: '/groups/{0}',
+                    user: {
+                        _url: '/groups/{0}/users/{1}'
+                    }
+                }
+                newGroup:{
+                    _url: '/groups/new'
+                }
+            }
+        }
     });
 
 Use it:
@@ -25,7 +35,15 @@ Find the name of a route from a path.
 
     router.find('/groups/12/users/2');
 
-    // Will return 'users'
+    // Will return 'user'
+
+    router.find('/');
+
+    // Will return 'home'
+
+    router.find('/home');
+
+    // Will also return 'home'
 
 ### Get
 
