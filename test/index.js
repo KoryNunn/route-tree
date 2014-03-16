@@ -84,3 +84,10 @@ grape('drill', function(t){
     t.deepEqual(router.drill('/things/1', 'aStuff', 2), '/things/1/stuff/2');
     t.deepEqual(router.drill('/things/1', 'aStuff'), '/things/1/stuff/{1}');
 });
+
+grape('resolve', function(t){
+    t.plan(2);
+
+    t.deepEqual(router.resolve('http://a.b.c', '/a', 2), 'http://a.b.c/a');
+    t.deepEqual(router.resolve('http://a.b.c', 'http://d.e.f'), 'http://d.e.f');
+});

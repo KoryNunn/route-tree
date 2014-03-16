@@ -1,4 +1,5 @@
 var arrayProto = [],
+    absolutePath = /^.+?\:\/\//g,
     formatRegex = /\{[0-9]*?\}/g;
 
 function formatString(string, values) {
@@ -8,11 +9,14 @@ function formatString(string, values) {
 };
 
 function resolve(rootPath, path){
+    if(path.match(absolutePath)){
+        return path;
+    }
     return rootPath + path;
 }
 
 function Router(routes){
-    this.basePath  = window.location.host;
+    this.basePath  = window.location.protocol + '//' + window.location.host;
     this.routes = routes;
     this.homeRoute = 'home';
 }
@@ -50,7 +54,7 @@ Router.prototype.find = function(url){
     return scanRoutes(this.routes, function(route, routeName){
         var urls = Array.isArray(route._url) ? route._url : [route._url];
         for(var i = 0; i < urls.length; i++){
-            var routeKey = resolve(router.basePath, urls[i]);
+            var routeKey = router.resolve(router.basePath, urls[i]);
 
             if(url.match('^' + routeKey.replace(formatRegex, '.*?') + '$')){
                 return routeName;
@@ -91,10 +95,10 @@ Router.prototype.get = function(name){
     }
 
     if(arguments.length > 1){
-        return resolve(this.basePath, formatString(url, arrayProto.slice.call(arguments, 1)));
+        return this.resolve(this.basePath, formatString(url, arrayProto.slice.call(arguments, 1)));
     }
 
-    return resolve(this.basePath, url);
+    return this.resolve(this.basePath, url);
 };
 
 Router.prototype.isIn = function(childName, parentName){
@@ -138,5 +142,7 @@ Router.prototype.drill = function(path, route){
 
     return this.get.apply(this, getArguments);
 };
+
+Router.prototype.resolve = resolve;
 
 module.exports = Router;

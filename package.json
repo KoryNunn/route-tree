@@ -1,14 +1,14 @@
 {
   "name": "route-tree",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "A simple named route matcher",
   "main": "router.js",
   "scripts": {
-    "test": "node ./test/test.js"
+    "test": "node ./test"
   },
   "author": "",
   "license": "BSD",
-  "dependencies": {
+  "devDependencies": {
     "grape": "~0.1.7"
   }
 }
