@@ -88,3 +88,18 @@ Drill down into a deeper path, using the values from a given path
     router.drill('/groups/1', 'user', 3);
 
     // Will return '/groups/1/users/3'
+
+
+## Defaults
+
+By default, route-tree will assume you have a default home route named 'home'
+
+This can be overriden on the instance of your router:
+
+    // Change the default home page name to be 'index'
+    router.homeRoute = 'index';
+
+route-tree will assume that your base path is window.location.host, you can override this if you want to have
+'/route' like routes but not have that resove to the hostname:
+
+    router.baseRoute = window.location.host + '/abc/123';
