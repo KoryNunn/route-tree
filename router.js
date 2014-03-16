@@ -113,6 +113,10 @@ Router.prototype.isIn = function(childName, parentName){
     return currentRoute === parentName;
 };
 
+Router.prototype.isRoot = function(name){
+    return name in this.routes;
+};
+
 Router.prototype.values = function(path){
     var routeTemplate = this.get(this.find(path)),
         results;

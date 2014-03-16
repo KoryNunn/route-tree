@@ -24,6 +24,9 @@ var grape = require('grape'),
                     }
                 }
             }
+        },
+        login: {
+            _url: '/login'
         }
     });
 
@@ -70,6 +73,14 @@ grape('isIn', function(t){
     t.ok(router.isIn('things', 'home'));
     t.ok(router.isIn('thing', 'things'));
     t.notOk(router.isIn('majiggers', 'stuff'));
+});
+
+grape('isRoot', function(t){
+    t.plan(3);
+
+    t.ok(router.isRoot('home'));
+    t.ok(router.isRoot('login'));
+    t.notOk(router.isRoot('majiggers'));
 });
 
 grape('values', function(t){

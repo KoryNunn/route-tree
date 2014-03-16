@@ -73,6 +73,30 @@ Find the route up one from the passed route.
 
     // Will return 'group'
 
+### isIn
+
+Check if a route is a decendant of another route.
+
+    router.isIn('user', 'home');
+
+    // Will return true
+
+    router.isIn('home', 'user');
+
+    // Will return false
+
+### isRoot
+
+Check if a route at the root of the router.
+
+    router.isRoot('home');
+
+    // Will return true
+
+    router.isRoot('user');
+
+    // Will return false
+
 ### Values
 
 Parse values out of a path:
