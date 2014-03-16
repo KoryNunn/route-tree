@@ -14,6 +14,7 @@ function resolve(rootPath, path){
 function Router(routes){
     this.basePath  = window.location.host;
     this.routes = routes;
+    this.homeRoute = 'home';
 }
 
 function scanRoutes(routes, fn){
@@ -67,7 +68,7 @@ Router.prototype.upOneName = function(name){
         if(name in route){
             return routeName;
         }
-    });
+    }) || this.homeRoute;
 };
 
 Router.prototype.upOne = function(path){

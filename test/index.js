@@ -43,10 +43,11 @@ grape('match a route', function(t){
 });
 
 grape('up a level', function(t){
-    t.plan(2);
+    t.plan(3);
 
     t.equal(router.upOne('/things/5/stuff/majigger'), '/things/5');
     t.equal(router.upOne('/things/5'), '/things');
+    t.equal(router.upOne('/'), '/');
 });
 
 grape('up by name', function(t){
