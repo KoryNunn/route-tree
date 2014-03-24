@@ -118,6 +118,10 @@ Router.prototype.isRoot = function(name){
 };
 
 Router.prototype.values = function(path){
+    if(path == null){
+        path = window.location.href;
+    }
+
     var routeTemplate = this.get(this.find(path)),
         results;
 
