@@ -96,9 +96,10 @@ grape('isRoot', function(t){
 });
 
 grape('values', function(t){
-    t.plan(1);
+    t.plan(2);
 
     t.deepEqual(router.values('/things/1/stuff/2'), ['1','2']);
+    t.deepEqual(router.values('/things/1/stuff/2/3'), ['1','2','3']);
 });
 
 grape('drill', function(t){

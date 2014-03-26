@@ -44,7 +44,7 @@ function scanRoutes(routes, fn){
     }
 }
 
-Router.prototype.find = function(url){
+Router.prototype.details = function(url){
     var router = this;
 
     if(url == null){
@@ -52,15 +52,36 @@ Router.prototype.find = function(url){
     }
 
     return scanRoutes(this.routes, function(route, routeName){
-        var urls = Array.isArray(route._url) ? route._url : [route._url];
-        for(var i = 0; i < urls.length; i++){
-            var routeKey = router.resolve(router.basePath, urls[i]);
+        var urls = Array.isArray(route._url) ? route._url : [route._url],
+            bestMatch,
+            mostMatches = 0;
 
-            if(url.match('^' + routeKey.replace(formatRegex, '.*?') + '$')){
-                return routeName;
+        for(var i = 0; i < urls.length; i++){
+            var routeKey = router.resolve(router.basePath, urls[i]),
+                match = url.match('^' + routeKey.replace(formatRegex, '(.*?)') + '$');
+
+            if(match && match.length > mostMatches){
+                mostMatches = match.length;
+                bestMatch = routeKey;
             }
         }
+
+        if(!bestMatch){
+            return;
+        }
+
+        return {
+            path: url,
+            name: routeName,
+            template: bestMatch
+        };
     });
+};
+
+Router.prototype.find = function(url){
+    var details = this.details.apply(this, arguments);
+
+    return details && details.name;
 };
 
 Router.prototype.upOneName = function(name){
@@ -130,18 +151,14 @@ Router.prototype.isRoot = function(name){
 };
 
 Router.prototype.values = function(path){
-    if(path == null){
-        path = window.location.href;
-    }
-
-    var routeTemplate = this.getTemplate(this.find(path)),
+    var details = this.details.apply(this, arguments),
         results;
 
-    if(routeTemplate == null){
+    if(details == null || details.template == null){
         return;
     }
 
-    results = path.match('^' + routeTemplate.replace(formatRegex, '(.*?)') + '$');
+    results = details.path.match('^' + details.template.replace(formatRegex, '(.*?)') + '$');
 
     if(results){
         return results.slice(1);
