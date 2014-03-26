@@ -4,7 +4,7 @@ var arrayProto = [],
 
 function formatString(string, values) {
     return string.replace(/{(\d+)}/g, function (match, number) {
-        return (values[number] == undefined || values[number] == null) ? match : values[number];
+        return (values[number] == undefined || values[number] == null) ? '' : values[number];
     });
 };
 
@@ -83,7 +83,7 @@ Router.prototype.upOne = function(path){
     return this.drill(path, this.upOneName(this.find(path)));
 };
 
-Router.prototype.get = function(name){
+Router.prototype.getTemplate = function(name){
     var args = arrayProto.slice.call(arguments, 1),
         url = scanRoutes(this.routes, function(route, routeName){
         if(name === routeName){
@@ -104,11 +104,13 @@ Router.prototype.get = function(name){
         return;
     }
 
-    if(arguments.length > 1){
-        return this.resolve(this.basePath, formatString(url, arrayProto.slice.call(arguments, 1)));
-    }
-
     return this.resolve(this.basePath, url);
+};
+
+Router.prototype.get = function(name){
+    var template = this.getTemplate.apply(this, arguments);
+
+    return formatString(template, arrayProto.slice.call(arguments, 1));
 };
 
 Router.prototype.isIn = function(childName, parentName){
@@ -132,7 +134,7 @@ Router.prototype.values = function(path){
         path = window.location.href;
     }
 
-    var routeTemplate = this.get(this.find(path)),
+    var routeTemplate = this.getTemplate(this.find(path)),
         results;
 
     if(routeTemplate == null){

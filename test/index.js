@@ -64,9 +64,19 @@ grape('get', function(t){
 
     t.equal(router.get('home'), '/');
     t.equal(router.get('thing', 1), '/things/1');
-    t.equal(router.get('thing'), '/things/{0}');
+    t.equal(router.get('thing'), '/things/');
     t.equal(router.get('aStuff', 1, 2), '/things/1/stuff/2');
     t.equal(router.get('aStuff', 1, 2, 3), '/things/1/stuff/2/3');
+});
+
+grape('getTemplate', function(t){
+    t.plan(5);
+
+    t.equal(router.getTemplate('home'), '/');
+    t.equal(router.getTemplate('thing', 1), '/things/{0}');
+    t.equal(router.getTemplate('thing'), '/things/{0}');
+    t.equal(router.getTemplate('aStuff', 1, 2), '/things/{0}/stuff/{1}');
+    t.equal(router.getTemplate('aStuff', 1, 2, 3), '/things/{0}/stuff/{1}/{2}');
 });
 
 grape('isIn', function(t){
@@ -95,7 +105,7 @@ grape('drill', function(t){
     t.plan(2);
 
     t.deepEqual(router.drill('/things/1', 'aStuff', 2), '/things/1/stuff/2');
-    t.deepEqual(router.drill('/things/1', 'aStuff'), '/things/1/stuff/{1}');
+    t.deepEqual(router.drill('/things/1', 'aStuff'), '/things/1/stuff/');
 });
 
 grape('resolve', function(t){
