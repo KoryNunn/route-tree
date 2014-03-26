@@ -20,7 +20,7 @@ var grape = require('grape'),
                 thing:{
                     _url: '/things/{0}',
                     aStuff:{
-                        _url: '/things/{0}/stuff/{1}'
+                        _url: ['/things/{0}/stuff/{1}', '/things/{0}/stuff/{1}/{2}']
                     }
                 }
             }
@@ -60,11 +60,13 @@ grape('up by name', function(t){
 });
 
 grape('get', function(t){
-    t.plan(3);
+    t.plan(5);
 
     t.equal(router.get('home'), '/');
     t.equal(router.get('thing', 1), '/things/1');
     t.equal(router.get('thing'), '/things/{0}');
+    t.equal(router.get('aStuff', 1, 2), '/things/1/stuff/2');
+    t.equal(router.get('aStuff', 1, 2, 3), '/things/1/stuff/2/3');
 });
 
 grape('isIn', function(t){

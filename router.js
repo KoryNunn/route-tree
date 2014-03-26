@@ -84,9 +84,19 @@ Router.prototype.upOne = function(path){
 };
 
 Router.prototype.get = function(name){
-    var url = scanRoutes(this.routes, function(route, routeName){
+    var args = arrayProto.slice.call(arguments, 1),
+        url = scanRoutes(this.routes, function(route, routeName){
         if(name === routeName){
-            return Array.isArray(route._url) ? route._url[0] : route._url;
+            if(!Array.isArray(route._url)){
+                return route._url
+            }
+
+            return route._url.filter(function(url){
+                var match = url.match(formatRegex);
+                if(match && match.length === args.length){
+                    return true;
+                }
+            })[0] || route._url[0];
         }
     });
 
