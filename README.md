@@ -57,6 +57,16 @@ Get or build a path from a route.
 
     // Will return '/groups/5/users/2'
 
+Get a template for a given path.
+
+    router.getTemplate('groups');
+
+    // Will return '/groups'
+
+    router.getTemplate('user', 5, 2);
+
+    // Will return '/groups/{0}/users/{1}'
+
 ### Up one
 
 Take a path, lookup the associated route, and return a path one route up from it.
