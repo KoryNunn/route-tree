@@ -1,12 +1,17 @@
 var arrayProto = [],
     absolutePath = /^.+?\:\/\//g,
-    formatRegex = /\{[0-9]*?\}/g;
+    formatRegex = /\{[0-9]*?\}/g,
+    sanitiseRegex = /[#-.\[\]-^?]/g;
+
+function sanitise(string){
+    return string.replace(sanitiseRegex, '\\$&');
+}
 
 function formatString(string, values) {
     return string.replace(/{(\d+)}/g, function (match, number) {
-        return (values[number] == undefined || values[number] == null) ? '' : values[number];
+        return (values[number] === undefined || values[number] === null) ? '' : values[number];
     });
-};
+}
 
 function resolve(rootPath, path){
     if(path.match(absolutePath)){
@@ -58,7 +63,7 @@ Router.prototype.details = function(url){
 
         for(var i = 0; i < urls.length; i++){
             var routeKey = router.resolve(router.basePath, urls[i]),
-                match = url.match('^' + routeKey.replace(formatRegex, '(.*?)') + '$');
+                match = url.match('^' + sanitise(routeKey).replace(formatRegex, '(.*?)') + '$');
 
             if(match && match.length > mostMatches){
                 mostMatches = match.length;
@@ -109,7 +114,7 @@ Router.prototype.getTemplate = function(name){
         url = scanRoutes(this.routes, function(route, routeName){
         if(name === routeName){
             if(!Array.isArray(route._url)){
-                return route._url
+                return route._url;
             }
 
             return route._url.filter(function(url){
@@ -158,7 +163,7 @@ Router.prototype.values = function(path){
         return;
     }
 
-    results = details.path.match('^' + details.template.replace(formatRegex, '(.*?)') + '$');
+    results = details.path.match('^' + sanitise(details.template).replace(formatRegex, '(.*?)') + '$');
 
     if(results){
         return results.slice(1);
