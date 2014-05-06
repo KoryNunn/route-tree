@@ -1,6 +1,7 @@
 var arrayProto = [],
     absolutePath = /^.+?\:\/\//g,
-    formatRegex = /\{[0-9]*?\}/g,
+    formatRegex = /\{.*?\}/g,
+    keysRegex = /\{(.*?)\}/g,
     sanitiseRegex = /[#-.\[\]-^?]/g;
 
 function sanitise(string){
@@ -8,7 +9,9 @@ function sanitise(string){
 }
 
 function formatString(string, values) {
-    return string.replace(/{(\d+)}/g, function (match, number) {
+    values || (values = {});
+
+    return string.replace(/{(.+?)}/g, function (match, number) {
         return (values[number] === undefined || values[number] === null) ? '' : values[number];
     });
 }
@@ -32,7 +35,7 @@ function scanRoutes(routes, fn){
         result;
 
     for(var key in routes){
-        if(key === '_url'){
+        if(key.charAt(0) === '_'){
             continue;
         }
 
@@ -84,7 +87,7 @@ Router.prototype.details = function(url){
 };
 
 Router.prototype.find = function(url){
-    var details = this.details.apply(this, arguments);
+    var details = this.details(url);
 
     return details && details.name;
 };
@@ -109,34 +112,58 @@ Router.prototype.upOne = function(path){
     return this.drill(path, this.upOneName(this.find(path)));
 };
 
-Router.prototype.getTemplate = function(name){
-    var args = arrayProto.slice.call(arguments, 1),
-        url = scanRoutes(this.routes, function(route, routeName){
+Router.prototype.getRouteTemplate = function(name, values){
+    var routeTemplate = scanRoutes(this.routes, function(route, routeName){
         if(name === routeName){
+            var result = {
+                route: route
+            };
+
             if(!Array.isArray(route._url)){
-                return route._url;
+                result.template = route._url;
+                return result;
             }
 
-            return route._url.filter(function(url){
-                var match = url.match(formatRegex);
-                if(match && match.length === args.length){
+            result.template = route._url.filter(function(url){
+                var keys = url.match(keysRegex);
+                if(keys && keys.length === values.length){
                     return true;
                 }
             })[0] || route._url[0];
+
+            return result;
         }
     });
 
-    if(!url){
+    if(!routeTemplate){
         return;
     }
 
-    return this.resolve(this.basePath, url);
+    routeTemplate.template = this.resolve(this.basePath, routeTemplate.template);
+
+    return routeTemplate;
 };
 
-Router.prototype.get = function(name){
-    var template = this.getTemplate.apply(this, arguments);
+Router.prototype.getTemplate = function(name, values){
+    return this.getRouteTemplate(name, values).template;
+};
 
-    return formatString(template, arrayProto.slice.call(arguments, 1));
+Router.prototype.get = function(name, values){
+    var routeTemplate = this.getRouteTemplate(name, values);
+
+    values || (values = {});
+
+    if(routeTemplate.route._defaults){
+        for(var key in routeTemplate.route._defaults){
+            var defaultValue = routeTemplate.route._defaults[key];
+            if(typeof defaultValue === 'function'){
+                defaultValue = defaultValue();
+            }
+            values[key] || (values[key] = defaultValue);
+        }
+    }
+
+    return formatString(routeTemplate.template, values);
 };
 
 Router.prototype.isIn = function(childName, parentName){
@@ -157,32 +184,45 @@ Router.prototype.isRoot = function(name){
 
 Router.prototype.values = function(path){
     var details = this.details.apply(this, arguments),
-        results;
+        result = {},
+        keys,
+        values;
 
     if(details == null || details.template == null){
         return;
     }
 
-    results = details.path.match('^' + sanitise(details.template).replace(formatRegex, '(.*?)') + '$');
+    keys = details.template.match(keysRegex);
+    values = details.path.match('^' + sanitise(details.template).replace(formatRegex, '(.*?)') + '$');
 
-    if(results){
-        return results.slice(1);
+    if(keys && values){
+        keys = keys.map(function(key){
+            return key.slice(1,-1);
+        });
+        values = values.slice(1);
+        for(var i = 0; i < keys.length; i++){
+            result[keys[i]] = values[i];
+        }
     }
+
+    return result;
 };
 
-Router.prototype.drill = function(path, route){
+Router.prototype.drill = function(path, route, newValues){
     if(path == null){
         path = window.location.href;
     }
-    var newValues = arrayProto.slice.call(arguments, 2);
 
-    var getArguments = this.values(path) || [];
 
-    getArguments = getArguments.concat(newValues);
+    var getArguments = this.values(path);
 
-    getArguments.unshift(route);
+    if(newValues){
+        for(var key in newValues){
+            getArguments[key] = newValues[key];
+        }
+    }
 
-    return this.get.apply(this, getArguments);
+    return this.get(route, getArguments);
 };
 
 Router.prototype.resolve = resolve;

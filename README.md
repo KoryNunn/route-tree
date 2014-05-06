@@ -15,9 +15,9 @@ Initialise it:
             groups{
                 _url: '/groups',
                 group:{
-                    _url: '/groups/{0}',
+                    _url: '/groups/{groupId}',
                     user: {
-                        _url: '/groups/{0}/users/{1}'
+                        _url: '/groups/{groupId}/users/{userId}'
                     }
                 },
                 newGroup:{
@@ -53,7 +53,10 @@ Get or build a path from a route.
 
     // Will return '/groups'
 
-    router.get('user', 5, 2);
+    router.get('user', {
+        groupId: 5,
+        userId: 2
+    });
 
     // Will return '/groups/5/users/2'
 
@@ -63,7 +66,10 @@ Get a template for a given path.
 
     // Will return '/groups'
 
-    router.getTemplate('user', 5, 2);
+    router.getTemplate('user', {
+        groupId: 5,
+        userId: 2
+    });
 
     // Will return '/groups/{0}/users/{1}'
 
@@ -113,13 +119,13 @@ Parse values out of a path:
 
     router.values('/groups/1/users/2');
 
-    // Will return ['1','2']
+    // Will return { groupId: 1, userId: 2 }
 
 ### Drill
 
 Drill down into a deeper path, using the values from a given path
 
-    router.drill('/groups/1', 'user', 3);
+    router.drill('/groups/1', 'user', {userId: 3});
 
     // Will return '/groups/1/users/3'
 
