@@ -113,7 +113,8 @@ Router.prototype.upOne = function(path){
 };
 
 Router.prototype.getRouteTemplate = function(name, values){
-    var routeTemplate = scanRoutes(this.routes, function(route, routeName){
+    var valueKeys = values && typeof values === 'object' && Object.keys(values) || [];
+        routeTemplate = scanRoutes(this.routes, function(route, routeName){
         if(name === routeName){
             var result = {
                 route: route
@@ -126,7 +127,7 @@ Router.prototype.getRouteTemplate = function(name, values){
 
             result.template = route._url.filter(function(url){
                 var keys = url.match(keysRegex);
-                if(keys && keys.length === values.length){
+                if(keys && keys.length === valueKeys.length){
                     return true;
                 }
             })[0] || route._url[0];
