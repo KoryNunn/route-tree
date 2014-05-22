@@ -141,12 +141,6 @@ Router.prototype.getRouteTemplate = function(name, values){
                     aDistance = Math.abs(commonAKeys.length - keys.length),
                     bDistance = Math.abs(commonBKeys.length - keys.length);
 
-                console.log('\n');
-                console.log(keys);
-                console.log(keysA, keysB);
-                console.log(commonAKeys, commonBKeys);
-                console.log(aDistance, bDistance);
-
                 return aDistance - bDistance;
             });
 
