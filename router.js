@@ -1,4 +1,5 @@
-var arrayProto = [],
+var intersect = require('./intersect'),
+    arrayProto = [],
     absolutePath = /^.+?\:\/\//g,
     formatRegex = /\{.*?\}/g,
     keysRegex = /\{(.*?)\}/g,
@@ -17,6 +18,9 @@ function formatString(string, values) {
 }
 
 function resolve(rootPath, path){
+    if(!path){
+        return rootPath;
+    }
     if(path.match(absolutePath)){
         return path;
     }
@@ -112,8 +116,12 @@ Router.prototype.upOne = function(path){
     return this.drill(path, this.upOneName(this.find(path)));
 };
 
+function cleanTokens(token){
+    return token.slice(1,-1);
+}
+
 Router.prototype.getRouteTemplate = function(name, values){
-    var valueKeys = values && typeof values === 'object' && Object.keys(values) || [];
+    var keys = values && typeof values === 'object' && Object.keys(values) || [];
         routeTemplate = scanRoutes(this.routes, function(route, routeName){
         if(name === routeName){
             var result = {
@@ -125,12 +133,24 @@ Router.prototype.getRouteTemplate = function(name, values){
                 return result;
             }
 
-            result.template = route._url.filter(function(url){
-                var keys = url.match(keysRegex);
-                if(keys && keys.length === valueKeys.length){
-                    return true;
-                }
-            })[0] || route._url[0];
+            var urlsByDistance = route._url.slice().sort(function(urlA, urlB){
+                var keysA = (urlA.match(keysRegex) || []).map(cleanTokens),
+                    keysB = (urlB.match(keysRegex) || []).map(cleanTokens),
+                    commonAKeys = intersect(keysA, keys),
+                    commonBKeys = intersect(keysB, keys),
+                    aDistance = Math.abs(commonAKeys.length - keys.length),
+                    bDistance = Math.abs(commonBKeys.length - keys.length);
+
+                console.log('\n');
+                console.log(keys);
+                console.log(keysA, keysB);
+                console.log(commonAKeys, commonBKeys);
+                console.log(aDistance, bDistance);
+
+                return aDistance - bDistance;
+            });
+
+            result.template = urlsByDistance[0] || route._url[0];
 
             return result;
         }

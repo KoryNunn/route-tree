@@ -6,6 +6,7 @@ GLOBAL.window = {
 
 var grape = require('grape'),
     Router = require('../'),
+    intersect = require('../intersect'),
     router = new Router({
         home:{
             _url: ['/', '/index.html'],
@@ -43,6 +44,9 @@ var grape = require('grape'),
         },
         keyOptions:{
             _url: ['/a','/a?b={b}']
+        },
+        bestFit:{
+            _url: ['/bestFit','/bestFit/{a}', ,'/bestFit/{a}/{b}']
         }
     });
 
@@ -157,4 +161,20 @@ grape('multiple options', function(t){
 
     t.deepEqual(router.get('keyOptions'), '/a');
     t.deepEqual(router.get('keyOptions', {b:1}), '/a?b=1');
+});
+
+grape('intersect', function(t){
+    t.plan(2);
+
+    t.deepEqual(intersect([1,2,3], [2,3,4]), [2,3]);
+    t.deepEqual(intersect([], [2,3,4]), []);
+});
+
+grape('multiple options best fit', function(t){
+    t.plan(4);
+
+    t.deepEqual(router.get('bestFit'), '/bestFit');
+    t.deepEqual(router.get('bestFit', {a:1, b: 2}), '/bestFit/1/2');
+    t.deepEqual(router.get('bestFit', {b:1, c: 2}), '/bestFit//1');
+    t.deepEqual(router.get('bestFit', {a:1, c: 2}), '/bestFit/1');
 });
