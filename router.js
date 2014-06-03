@@ -166,6 +166,10 @@ Router.prototype.getTemplate = function(name, values){
 Router.prototype.get = function(name, values){
     var routeTemplate = this.getRouteTemplate(name, values);
 
+    if(!routeTemplate){
+        return null;
+    }
+
     values || (values = {});
 
     if(routeTemplate.route._defaults){

@@ -178,3 +178,9 @@ grape('multiple options best fit', function(t){
     t.deepEqual(router.get('bestFit', {b:1, c: 2}), '/bestFit//1');
     t.deepEqual(router.get('bestFit', {a:1, c: 2}), '/bestFit/1');
 });
+
+grape('no named route', function(t){
+    t.plan(1);
+
+    t.equal(router.get('nothingForThis'), null);
+});
