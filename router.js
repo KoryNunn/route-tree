@@ -3,6 +3,7 @@ var intersect = require('./intersect'),
     absolutePath = /^.+?\:\/\//g,
     formatRegex = /\{.*?\}/g,
     keysRegex = /\{(.*?)\}/g,
+    nonNameKey = /^_(.*)$/,
     sanitiseRegex = /[#-.\[\]-^?]/g;
 
 function sanitise(string){
@@ -87,6 +88,29 @@ Router.prototype.details = function(url){
             name: routeName,
             template: bestMatch
         };
+    });
+};
+
+Router.prototype.info = function(name){
+    var router = this;
+
+    return scanRoutes(this.routes, function(route, routeName){
+        if(routeName !== name){
+            return;
+        }
+
+        var info = {
+            name: routeName
+        };
+
+        for(var key in route){
+            var keyNameMatch = key.match(nonNameKey);
+            if(keyNameMatch){
+                info[keyNameMatch[1]] = route[key];
+            }
+        }
+
+        return info;
     });
 };
 

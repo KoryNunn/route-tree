@@ -10,6 +10,7 @@ var grape = require('grape'),
     router = new Router({
         home:{
             _url: ['/', '/index.html'],
+            _something: 1234,
             majiggers:{
                 _url: '/majiggers'
             },
@@ -183,4 +184,11 @@ grape('no named route', function(t){
     t.plan(1);
 
     t.equal(router.get('nothingForThis'), null);
+});
+
+grape('info', function(t){
+    t.plan(2);
+
+    t.equal(router.info('home').something, 1234);
+    t.deepEqual(router.info('home').url, ['/', '/index.html']);
 });
