@@ -51,7 +51,9 @@ var grape = require('grape'),
         }
     });
 
-
+router.currentPath = function(){
+    return '/someRoute';
+}
 
 router.basePath = '';
 
@@ -191,4 +193,47 @@ grape('info', function(t){
 
     t.equal(router.info('home').something, 1234);
     t.deepEqual(router.info('home').url, ['/', '/index.html']);
+});
+
+
+
+grape('custom currentPath', function(t){
+    t.plan(5);
+
+    var testUrl = '/#/users#/';
+        routes = {
+            home:{
+                _url: '/',
+                users: {
+                    _url:'/users',
+                    user:{
+                        _url:'/users/{userId}'
+                    }
+                }
+            }
+        },
+        router1 = new Router(routes),
+        router2 = new Router(routes);
+
+    router1.basePath = router2.basePath = '';
+    router1.currentPath = function(){
+        return testUrl.split('#').slice(1)[0];
+    };
+    router2.currentPath = function(){
+        return testUrl.split('#').slice(1)[1];
+    };
+
+    console.log(router1.currentPath());
+    console.log(router2.currentPath());
+    console.log(router1.find());
+
+    t.equal(router1.find(), 'users');
+    t.equal(router2.find(), 'home');
+
+    testUrl = '/#/#/users/5';
+
+    t.equal(router1.find(), 'home');
+    t.equal(router2.find(), 'user');
+
+    t.equal(router2.upOne(), '/users');
 });

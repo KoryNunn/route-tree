@@ -57,11 +57,15 @@ function scanRoutes(routes, fn){
     }
 }
 
+Router.prototype.currentPath = function(){
+    return window.location.href;
+};
+
 Router.prototype.details = function(url){
     var router = this;
 
     if(url == null){
-        url = window.location.href;
+        url = this.currentPath();
     }
 
     return scanRoutes(this.routes, function(route, routeName){
@@ -251,13 +255,13 @@ Router.prototype.values = function(path){
     return result;
 };
 
-Router.prototype.drill = function(path, route, newValues){
-    if(path == null){
-        path = window.location.href;
+Router.prototype.drill = function(url, route, newValues){
+    if(url == null){
+        url = this.currentPath();
     }
 
 
-    var getArguments = this.values(path);
+    var getArguments = this.values(url);
 
     if(newValues){
         for(var key in newValues){
