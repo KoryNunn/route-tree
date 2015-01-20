@@ -149,7 +149,7 @@ function cleanTokens(token){
 }
 
 Router.prototype.getRouteTemplate = function(name, values){
-    var keys = values && typeof values === 'object' && Object.keys(values) || [];
+    var keys = values && typeof values === 'object' && Object.keys(values) || [],
         routeTemplate = scanRoutes(this.routes, function(route, routeName){
         if(name === routeName){
             var result = {
