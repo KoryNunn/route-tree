@@ -18,6 +18,10 @@ function formatString(string, values) {
     });
 }
 
+function isRestToken(token){
+    return token.match(/^{.*?\.\.\.}$/);
+}
+
 function resolve(rootPath, path){
     if(!path){
         return rootPath;
@@ -75,7 +79,13 @@ Router.prototype.details = function(url){
 
         for(var i = 0; i < urls.length; i++){
             var routeKey = router.resolve(router.basePath, urls[i]),
-                match = url.match('^' + sanitise(routeKey).replace(formatRegex, '(.*?)') + '$');
+                regex = '^' + routeKey.replace(formatRegex, function(item){
+                    if(isRestToken(item)){
+                        return '(.*?)';
+                    }
+                    return '([^/]*?)';
+                }) + '$',
+                match = url.match(regex);
 
             if(match && match.length > mostMatches){
                 mostMatches = match.length;
@@ -244,6 +254,9 @@ Router.prototype.values = function(path){
 
     if(keys && values){
         keys = keys.map(function(key){
+            if(isRestToken(key)){
+                return key.slice(1,-4);
+            }
             return key.slice(1,-1);
         });
         values = values.slice(1);

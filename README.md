@@ -24,6 +24,9 @@ Initialise it:
                     _url: '/groups/new'
                 }
             }
+        },
+        image: {
+            _url: '/images/{path...}'
         }
     });
 
@@ -129,6 +132,11 @@ Drill down into a deeper path, using the values from a given path
 
     // Will return '/groups/1/users/3'
 
+## Tokens
+
+Tokens can be put in routes in the format of ```{tokenName}```, which will match everything excluding slashes.
+
+If you need to match everything *including* slashes, you can use the 'rest' token format: ```{tokenName...}```
 
 ## Defaults
 
