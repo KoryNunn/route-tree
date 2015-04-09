@@ -10,16 +10,23 @@ function sanitise(string){
     return string.replace(sanitiseRegex, '\\$&');
 }
 
-function formatString(string, values) {
-    values || (values = {});
-
-    return string.replace(/{(.+?)}/g, function (match, number) {
-        return (values[number] === undefined || values[number] === null) ? '' : values[number];
-    });
+function isRestKey(key){
+    return key.match(/^.*?\.\.\.$/);
 }
 
 function isRestToken(token){
     return token.match(/^{.*?\.\.\.}$/);
+}
+
+function formatString(string, values) {
+    values || (values = {});
+
+    return string.replace(/{(.+?)}/g, function (match, key) {
+        if(isRestKey(key)){
+            key = key.slice(0,-3);
+        }
+        return (values[key] === undefined || values[key] === null) ? '' : values[key];
+    });
 }
 
 function resolve(rootPath, path){

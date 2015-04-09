@@ -205,6 +205,11 @@ test('rest', function(t){
     t.deepEqual(router.values('/therest/of/the/url').things, 'of/the/url');
 });
 
+test('get', function(t){
+    t.plan(1);
+
+    t.equal(router.get('rest', {'things':'stuff'}), '/therest/stuff');
+});
 
 
 test('custom currentPath', function(t){
