@@ -51,6 +51,9 @@ var test = require('tape'),
         },
         rest:{
             _url: ['/therest/{things...}']
+        },
+        queryString:{
+            _url: ['/query?foo={bar}']
         }
     });
 
@@ -209,6 +212,12 @@ test('get', function(t){
     t.plan(1);
 
     t.equal(router.get('rest', {'things':'stuff'}), '/therest/stuff');
+});
+
+test('queryString', function(t){
+    t.plan(1);
+
+    t.equal(router.find('/query?foo=majigger'), 'queryString');
 });
 
 

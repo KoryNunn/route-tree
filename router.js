@@ -15,7 +15,7 @@ function isRestKey(key){
 }
 
 function isRestToken(token){
-    return token.match(/^{.*?\.\.\.}$/);
+    return token.match(/^{.*?(?:\.\.\.)|(?:\\\.\\\.\\\.)}$/);
 }
 
 function formatString(string, values) {
@@ -86,7 +86,7 @@ Router.prototype.details = function(url){
 
         for(var i = 0; i < urls.length; i++){
             var routeKey = router.resolve(router.basePath, urls[i]),
-                regex = '^' + routeKey.replace(formatRegex, function(item){
+                regex = '^' + sanitise(routeKey).replace(formatRegex, function(item){
                     if(isRestToken(item)){
                         return '(.*?)';
                     }
