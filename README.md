@@ -150,4 +150,4 @@ This can be overriden on the instance of your router:
 route-tree will assume that your base path is window.location.host, you can override this if you want to have
 '/route' like routes but not have that resove to the hostname:
 
-    router.baseRoute = window.location.host + '/abc/123';
+    router.basePath = window.location.host + '/abc/123';
