@@ -1,13 +1,18 @@
-GLOBAL.window = {
-    location:{
-        host: 'mysite.com'
-    }
-};
+if(!global.window){
+    global.window = {
+        location:{
+            host: 'mysite.com'
+        }
+    };
+}
 
 var test = require('tape'),
     Router = require('../'),
     intersect = require('../intersect'),
     router = new Router({
+        noUrl:{
+            _url: ['']
+        },
         home:{
             _url: ['/', '/index.html'],
             _something: 1234,
@@ -220,6 +225,11 @@ test('queryString', function(t){
     t.equal(router.find('/query?foo=majigger'), 'queryString');
 });
 
+test('noUrl', function(t){
+    t.plan(1);
+
+    t.equal(router.find(''), 'noUrl');
+});
 
 test('custom currentPath', function(t){
     t.plan(5);

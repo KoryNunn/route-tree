@@ -100,7 +100,7 @@ Router.prototype.details = function(url){
             }
         }
 
-        if(!bestMatch){
+        if(bestMatch == null){
             return;
         }
 

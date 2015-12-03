@@ -4,7 +4,8 @@
   "description": "A simple named route matcher",
   "main": "router.js",
   "scripts": {
-    "test": "node ./test"
+    "test": "node ./test",
+    "watch": "watchify ./test/index.js -o ./test/index.browser.js -d"
   },
   "author": "",
   "license": "BSD",
