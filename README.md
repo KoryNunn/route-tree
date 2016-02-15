@@ -140,6 +140,19 @@ If you need to match everything *including* slashes, you can use the 'rest' toke
 
 ## Defaults
 
+You can specify default route-values with `_defaults`:
+
+```javascript
+
+new Router({
+        foo:{
+            _url: '/bar/{dooby}',
+            _defaults: { dooby: 'whatsits' }
+    }
+})
+
+```
+
 By default, route-tree will assume you have a default home route named 'home'
 
 This can be overriden on the instance of your router:

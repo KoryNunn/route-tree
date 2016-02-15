@@ -8,8 +8,19 @@
     "watch": "watchify ./test/index.js -o ./test/index.browser.js -d"
   },
   "author": "",
-  "license": "BSD",
+  "license": "ISC",
   "devDependencies": {
     "tape": "^3.5.0"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KoryNunn/route-tree.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KoryNunn/route-tree/issues"
+  },
+  "homepage": "https://github.com/KoryNunn/route-tree#readme"
 }
