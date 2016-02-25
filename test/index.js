@@ -271,3 +271,54 @@ test('custom currentPath', function(t){
 
     t.equal(router2.upOne(), '/users');
 });
+
+test('serialise / desierilse values', function(t) {
+    t.plan(3);
+
+    var routes = {
+            home: {
+                _url: '/serialised/{foo}?{query}',
+                _serialise: function(key, value) {
+                    if(key !== 'query') {
+                        return value;
+                    }
+
+                    return Object.keys(value).reduce(function(result, key){
+                        result.push(key + '=' + value[key]);
+
+                        return result;
+                    }, []).join('&');
+
+                },
+                _deserialise: function(key, value) {
+                    if(key !== 'query') {
+                        return value;
+                    }
+
+                    return value.split('&').reduce(function(result, part) {
+                        var parts = part.split('=');
+
+                        result[parts[0]] = parts[1];
+
+                        return result;
+                    }, {});
+                }
+            }
+        },
+        router3 = new Router(routes);
+
+    var values = {
+            foo: 'bar',
+            query: {
+                a: '1',
+                b: '2'
+            }
+        },
+        url = router3.get('home', values),
+        expectedUrl =  '/serialised/bar?a=1&b=2';
+
+    t.equal(url.replace(router3.basePath, ''), expectedUrl, 'serialise returned expected url');
+    t.equal(router3.find(router3.basePath + expectedUrl), 'home', 'found the correct route');
+    t.deepEqual(router3.values(router3.basePath + expectedUrl), values, 'deserialise returned expected route values');
+
+});
