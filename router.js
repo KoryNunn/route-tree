@@ -220,14 +220,27 @@ Router.prototype.get = function(name, values){
     if(routeTemplate.route._defaults){
         for(var key in routeTemplate.route._defaults){
             var defaultValue = routeTemplate.route._defaults[key];
+
             if(typeof defaultValue === 'function'){
                 defaultValue = defaultValue();
             }
+
             values[key] || (values[key] = defaultValue);
         }
     }
 
-    return formatString(routeTemplate.template, values);
+    var serialise = routeTemplate.route._serialise;
+
+    var resolvedValues = {};
+
+    for(var valuesKey in values) {
+        var value = values[valuesKey];
+        resolvedValues[valuesKey] = serialise ?
+            serialise(valuesKey, value) :
+            value;
+    }
+
+    return formatString(routeTemplate.template, resolvedValues);
 };
 
 Router.prototype.isIn = function(childName, parentName){
@@ -259,6 +272,8 @@ Router.prototype.values = function(path){
     keys = details.template.match(keysRegex);
     values = details.path.match('^' + sanitise(details.template).replace(formatRegex, '(.*?)') + '$');
 
+    var info = this.info(details.name);
+
     if(keys && values){
         keys = keys.map(function(key){
             if(isRestToken(key)){
@@ -268,7 +283,12 @@ Router.prototype.values = function(path){
         });
         values = values.slice(1);
         for(var i = 0; i < keys.length; i++){
-            result[keys[i]] = values[i];
+            var value = values[i];
+
+            if(info.deserialise) {
+                value = info.deserialise(keys[i], value);
+            }
+            result[keys[i]] = value;
         }
     }
 
