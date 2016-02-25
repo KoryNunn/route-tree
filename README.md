@@ -137,7 +137,7 @@ router.values('/groups/1/users/2');
 // Will return { groupId: 1, userId: 2 }
 ```
 
-A route can also have a [serialise and deserialise values](#Serialise%20/%20Deserialise%20Values) function
+A route can also have a [serialise and deserialise values](#serialise--deserialise-values) function
 
 ### Drill
 
