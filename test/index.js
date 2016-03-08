@@ -115,6 +115,18 @@ test('get with partial defaults', function(t){
     t.equal(router.get('defaulted', ['c']), '/defaulted/c/b');
 });
 
+test('values with defaults', function(t){
+    t.plan(1);
+
+    t.deepEqual(router.values('/defaulted//'), {0: 'a', 1: 'b'});
+});
+
+test('values with partial defaults', function(t){
+    t.plan(1);
+
+    t.deepEqual(router.values('/defaulted/c/'), {0: 'c', 1: 'b'});
+});
+
 test('get with names', function(t){
     t.plan(2);
 
@@ -256,10 +268,6 @@ test('custom currentPath', function(t){
     router2.currentPath = function(){
         return testUrl.split('#').slice(1)[1];
     };
-
-    console.log(router1.currentPath());
-    console.log(router2.currentPath());
-    console.log(router1.find());
 
     t.equal(router1.find(), 'users');
     t.equal(router2.find(), 'home');
