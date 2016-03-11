@@ -39,8 +39,13 @@ function resolve(rootPath, path){
     return rootPath + path;
 }
 
-function Router(routes){
-    this.basePath  = window.location.protocol + '//' + window.location.host;
+function Router(routes, location){
+    if(!location){
+        location = window.location;
+    }
+
+    this.location = location;
+    this.basePath  = location.protocol + '//' + location.host;
     this.routes = routes;
     this.homeRoute = 'home';
 }
@@ -69,7 +74,7 @@ function scanRoutes(routes, fn){
 }
 
 Router.prototype.currentPath = function(){
-    return window.location.href;
+    return this.location.href;
 };
 
 Router.prototype.details = function(url){
@@ -155,7 +160,7 @@ Router.prototype.upOneName = function(name){
 
 Router.prototype.upOne = function(path){
     if(path === undefined){
-        path = window.location.href;
+        path = this.currentPath();
     }
 
     return this.drill(path, this.upOneName(this.find(path)));
