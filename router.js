@@ -213,6 +213,20 @@ Router.prototype.getTemplate = function(name, values){
     return this.getRouteTemplate(name, values).template;
 };
 
+function getDefaults(defaults, result){
+    for(var key in defaults){
+        var defaultValue = defaults[key];
+
+        if(typeof defaultValue === 'function'){
+            defaultValue = defaultValue();
+        }
+
+        result[key] || (result[key] = defaultValue);
+    }
+
+    return result;
+}
+
 Router.prototype.get = function(name, values){
     var routeTemplate = this.getRouteTemplate(name, values);
 
@@ -223,15 +237,7 @@ Router.prototype.get = function(name, values){
     values || (values = {});
 
     if(routeTemplate.route._defaults){
-        for(var key in routeTemplate.route._defaults){
-            var defaultValue = routeTemplate.route._defaults[key];
-
-            if(typeof defaultValue === 'function'){
-                defaultValue = defaultValue();
-            }
-
-            values[key] || (values[key] = defaultValue);
-        }
+        getDefaults(routeTemplate.route._defaults, values);
     }
 
     var serialise = routeTemplate.route._serialise;
@@ -286,7 +292,9 @@ Router.prototype.values = function(path){
             }
             return key.slice(1,-1);
         });
+
         values = values.slice(1);
+
         for(var i = 0; i < keys.length; i++){
             var value = values[i];
 
@@ -295,6 +303,8 @@ Router.prototype.values = function(path){
             }
             result[keys[i]] = value;
         }
+
+        getDefaults(info.defaults, result);
     }
 
     return result;
