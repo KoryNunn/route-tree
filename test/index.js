@@ -1,3 +1,5 @@
+var dateRegex = require('regex-iso-date')();
+
 if(!global.window){
     global.window = {
         location:{
@@ -57,8 +59,11 @@ var test = require('tape'),
         rest:{
             _url: ['/therest/{things...}']
         },
-        queryString:{
-            _url: ['/query?foo={bar}']
+        queryToken: {
+            _url: [
+                '/queryToken{?query}',
+                '/queryToken/{dooby}{?query}'
+            ]
         }
     });
 
@@ -231,10 +236,26 @@ test('get', function(t){
     t.equal(router.get('rest', {'things':'stuff'}), '/therest/stuff');
 });
 
-test('queryString', function(t){
-    t.plan(1);
+test('queryToken', function(t){
+    t.plan(12);
 
-    t.equal(router.find('/query?foo=majigger'), 'queryString');
+    t.equal(router.find('/queryToken'), 'queryToken');
+    t.equal(router.find('/queryToken?foo=bar'), 'queryToken');
+
+    t.deepEqual(router.values('/queryToken'), {});
+    t.deepEqual(router.values('/queryToken?foo=bar'), {query: {foo: 'bar'}});
+
+    t.equal(router.get('queryToken', {}), '/queryToken');
+    t.equal(router.get('queryToken', {query: {foo: 'bar'}}), '/queryToken?foo=bar');
+
+    t.equal(router.find('/queryToken/dooby'), 'queryToken');
+    t.equal(router.find('/queryToken/dooby?foo=bar'), 'queryToken');
+
+    t.deepEqual(router.values('/queryToken/dooby'), {dooby: 'dooby'});
+    t.deepEqual(router.values('/queryToken/dooby?foo=bar'), {dooby: 'dooby', query: {foo: 'bar'}});
+
+    t.equal(router.get('queryToken', {}), '/queryToken');
+    t.equal(router.get('queryToken', {dooby: 'dooby', query: {foo: 'bar'}}), '/queryToken/dooby?foo=bar');
 });
 
 test('noUrl', function(t){
@@ -280,50 +301,36 @@ test('custom currentPath', function(t){
     t.equal(router2.upOne(), '/users');
 });
 
-test('serialise / desierilse values', function(t) {
+test('serialise / deserialise values', function(t) {
     t.plan(3);
 
     var routes = {
             home: {
-                _url: '/serialised/{foo}?{query}',
+                _url: '/serialised/{foo}/{bar}',
                 _serialise: function(key, value) {
-                    if(key !== 'query') {
-                        return value;
+                    if(value && value instanceof Date){
+                        return value.toISOString();
                     }
 
-                    return Object.keys(value).reduce(function(result, key){
-                        result.push(key + '=' + value[key]);
-
-                        return result;
-                    }, []).join('&');
-
+                    return value;
                 },
                 _deserialise: function(key, value) {
-                    if(key !== 'query') {
-                        return value;
+                    if(value.match(dateRegex)){
+                        return new Date(value);
                     }
 
-                    return value.split('&').reduce(function(result, part) {
-                        var parts = part.split('=');
-
-                        result[parts[0]] = parts[1];
-
-                        return result;
-                    }, {});
+                    return value;
                 }
             }
         },
         router3 = new Router(routes);
 
     var values = {
-            foo: 'bar',
-            query: {
-                a: '1',
-                b: '2'
-            }
+            foo: new Date(2000,1,1),
+            bar: 'bar',
         },
         url = router3.get('home', values),
-        expectedUrl =  '/serialised/bar?a=1&b=2';
+        expectedUrl =  '/serialised/2000-01-31T14:00:00.000Z/bar';
 
     t.equal(url.replace(router3.basePath, ''), expectedUrl, 'serialise returned expected url');
     t.equal(router3.find(router3.basePath + expectedUrl), 'home', 'found the correct route');
