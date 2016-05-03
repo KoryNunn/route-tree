@@ -28,6 +28,9 @@ module.exports = new Router({
     },
     image: {
         _url: '/images/{path...}'
+    },
+    withQuery: {
+        _url: '/foo{?query}'
     }
 });
 ```
@@ -49,6 +52,14 @@ router.find('/');
 router.find('/home');
 
 // Will also return 'home'
+
+router.find('/withQuery');
+
+// Will return 'withQuery'
+
+router.find('/withQuery?a=1&b=2');
+
+// Will also return 'withQuery'
 ```
 ### Get
 
@@ -135,6 +146,10 @@ Parse values out of a path:
 router.values('/groups/1/users/2');
 
 // Will return { groupId: 1, userId: 2 }
+
+router.values('/withQuery?a=1&b=2');
+
+// Will return {query { a: 1, b: 2 }}
 ```
 
 A route can also have a [serialise and deserialise values](#Serialise%20/%20Deserialise%20Values) function
@@ -192,31 +207,20 @@ A route can have a \_serialise and \_deserialise function
 ```javascript
 var router = new Router({
         home: {
-            _url: '/home/{foo}?{query}',
-            _serialise: function(key, value) {
-                if(key !== 'query') {
-                    return value;
+            _url: '/home/{foo}',
+             _serialise: function(key, value) {
+                if(value && value instanceof Date){
+                    return value.toISOString();
                 }
 
-                return Object.keys(value).reduce(function(result, key){
-                    result.push(key + '=' + value[key]);
-
-                    return result;
-                }, []).join('&');
-
+                return value;
             },
             _deserialise: function(key, value) {
-                if(key !== 'query') {
-                    return value;
+                if(value.match(dateRegex)){
+                    return new Date(value);
                 }
 
-                return value.split('&').reduce(function(result, part) {
-                    var parts = part.split('=');
-
-                    result[parts[0]] = parts[1];
-
-                    return result;
-                }, {});
+                return value;
             }
         }
     }
@@ -224,24 +228,16 @@ var router = new Router({
 ```
 ```javascript
 router.get('home', {
-        foo: 'bar',
-        query: {
-            a: '1',
-            b: '2'
-        }
+        foo: new Date()
     });
 ```
-Will return '/home/bar?a=1&b=2'
+Will return '/home/2000-01-31T14:00:00.000Z
 ```javascript
-router.values(router.basePath + '/home/bar?a=1&b=2')
+router.values(router.basePath + '/home/2000-01-31T14:00:00.000Z')
 ```
 Will return:
 ```javascript
 {
-    foo: 'bar',
-    query: {
-        a: '1',
-        b: '2'
-    }
+    foo: Tue Feb 01 2000 00:00:00 GMT+1000 (AEST)
 }
 ```
